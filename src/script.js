@@ -1,3 +1,23 @@
+const Movie = (props) => {
+  const { Title, Year, imdbID, Type, Poster } = props.movie;  // ES6 destructuring
+
+  return (
+    <div className="row">
+      <div className="col-4 col-md-3 mb-3">
+        <a href={`https://www.imdb.com/title/${imdbID}/`} target="_blank">
+          <img src={Poster} className="img-fluid" />
+        </a>
+      </div>
+      <div className="col-8 col-md-9 mb-3">
+        <a href={`https://www.imdb.com/title/${imdbID}/`} target="_blank">
+          <h4>{Title}</h4>
+          <p>{Type} | {Year}</p>
+        </a>
+      </div>
+    </div>
+  )
+}
+
 class MovieFinder extends React.Component {
   constructor(props) {
     super(props);
@@ -30,7 +50,8 @@ class MovieFinder extends React.Component {
       }
       throw new Error('Request was either a 404 or 500');
     }).then((data) => {
-      console.log(data);  // log the response data for now
+      // Store the array of movie objects in the component state
+      this.setState({ results: data.Search });
     }).catch((error) => {
       console.log(error);
     })
@@ -54,7 +75,7 @@ class MovieFinder extends React.Component {
               <button type="submit" className="btn btn-primary">Submit</button>
             </form>
             {results.map((movie) => {
-              return null;  // returns nothing for now
+              return <Movie key={movie.imdbID} movie={movie}/>;
             })}
           </div>
         </div>
