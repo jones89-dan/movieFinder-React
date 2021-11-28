@@ -59,7 +59,8 @@ var MovieFinder = function (_React$Component) {
 
     _this.state = {
       searchTerm: '',
-      results: []
+      results: [],
+      error: ''
     };
 
     _this.handleChange = _this.handleChange.bind(_this);
@@ -86,16 +87,25 @@ var MovieFinder = function (_React$Component) {
         return; // early return
       }
       // make the AJAX request to OMDBAPI to get a list of results
-      fetch("https://www.omdbapi.com/?s=" + searchTerm + "&apikey=a92b3d43").then(function (response) {
+      var checkStatus = function checkStatus(response) {
         if (response.ok) {
           // .ok returns true if response status is 200-299
-          return response.json();
+          return response;
         }
         throw new Error('Request was either a 404 or 500');
-      }).then(function (data) {
-        // Store the array of movie objects in the component state
-        _this2.setState({ results: data.Search });
+      };
+      var json = function json(response) {
+        return response.json();
+      };
+      fetch("https://www.omdbapi.com/?s=" + searchTerm + "&apikey=b7da8d63").then(checkStatus).then(json).then(function (data) {
+        if (data.Response === 'False') {
+          throw new Error(data.Error);
+        }
+        if (data.Response === 'True' && data.Search) {
+          _this2.setState({ results: data.Search, error: '' });
+        }
       }).catch(function (error) {
+        _this2.setState({ error: error.message });
         console.log(error);
       });
     }
@@ -104,7 +114,8 @@ var MovieFinder = function (_React$Component) {
     value: function render() {
       var _state = this.state,
           searchTerm = _state.searchTerm,
-          results = _state.results; // ES6 destructuring
+          results = _state.results,
+          error = _state.error; // ES6 destructuring
 
       return React.createElement(
         "div",
@@ -131,9 +142,14 @@ var MovieFinder = function (_React$Component) {
                 "Submit"
               )
             ),
-            results.map(function (movie) {
-              return React.createElement(Movie, { key: movie.imdbID, movie: movie });
-            })
+            function () {
+              if (error) {
+                return error;
+              }
+              return results.map(function (movie) {
+                return React.createElement(Movie, { key: movie.imdbID, movie: movie });
+              });
+            }()
           )
         )
       );
