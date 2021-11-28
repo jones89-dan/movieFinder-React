@@ -25,46 +25,64 @@ var MovieFinder = function (_React$Component) {
   }
 
   _createClass(MovieFinder, [{
-    key: "handleChange",
+    key: 'handleChange',
     value: function handleChange(event) {
       this.setState({ searchTerm: event.target.value });
     }
   }, {
-    key: "handleSubmit",
+    key: 'handleSubmit',
     value: function handleSubmit(event) {
       event.preventDefault();
-      // doing nothing for now
+      var searchTerm = this.state.searchTerm; // ES6 destructuring
+
+      searchTerm = searchTerm.trim(); // clean the string
+      if (!searchTerm) {
+        // make sure the value isn't an empty string
+        return; // early return
+      }
+      // make the AJAX request to OMDBAPI to get a list of results
+      fetch('https://www.omdbapi.com/?s=' + searchTerm + '&apikey=a92b3d43').then(function (response) {
+        if (response.ok) {
+          // .ok returns true if response status is 200-299
+          return response.json();
+        }
+        throw new Error('Request was either a 404 or 500');
+      }).then(function (data) {
+        console.log(data); // log the response data for now
+      }).catch(function (error) {
+        console.log(error);
+      });
     }
   }, {
-    key: "render",
+    key: 'render',
     value: function render() {
       var _state = this.state,
           searchTerm = _state.searchTerm,
           results = _state.results; // ES6 destructuring
 
       return React.createElement(
-        "div",
-        { className: "container" },
+        'div',
+        { className: 'container' },
         React.createElement(
-          "div",
-          { className: "row" },
+          'div',
+          { className: 'row' },
           React.createElement(
-            "div",
-            { className: "col-12" },
+            'div',
+            { className: 'col-12' },
             React.createElement(
-              "form",
-              { onSubmit: this.handleSubmit, className: "form-inline my-4" },
-              React.createElement("input", {
-                type: "text",
-                className: "form-control mr-sm-2",
-                placeholder: "frozen",
+              'form',
+              { onSubmit: this.handleSubmit, className: 'form-inline my-4' },
+              React.createElement('input', {
+                type: 'text',
+                className: 'form-control mr-sm-2',
+                placeholder: 'frozen',
                 value: searchTerm,
                 onChange: this.handleChange
               }),
               React.createElement(
-                "button",
-                { type: "submit", className: "btn btn-primary" },
-                "Submit"
+                'button',
+                { type: 'submit', className: 'btn btn-primary' },
+                'Submit'
               )
             ),
             results.map(function (movie) {
